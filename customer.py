@@ -46,6 +46,9 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/customer'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+
 db = SQLAlchemy(app)
 CORS(app)
 
@@ -267,10 +270,10 @@ def createID():
 
 # flask loginmanager helps to get a user from OUR db
 @login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
+def load_user(userID):
+    return User.get(userID)
 
-@app.route("/ESDproject/home")
+@app.route("/home")
 def index():
     if current_user.is_authenticated:
         return (
@@ -287,7 +290,7 @@ def index():
 def get_google_provider_cfg():
     return requests.get(GOOGLE_DISCOVERY_URL).json()
 
-@app.route("/ESDproject/google_login")
+@app.route("/google_login")
 def google_login():
     # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
@@ -302,7 +305,7 @@ def google_login():
     )
     return redirect(request_uri)
 
-@app.route("/ESDproject/google_login/google_callback")
+@app.route("/google_login/google_callback")
 def google_callback():
     # Get authorization code Google sent back
     code = request.args.get("code")
@@ -344,7 +347,7 @@ def google_callback():
         return "User email not available or not verified by Google.", 400
 
     # if user doenst exist then add to db
-    if not User.get(unique_id):
+    if not User.get(users_email):
         # Send user to login page to continue filling up details
         # if user is new
         return redirect(url_for("login"))
@@ -352,12 +355,12 @@ def google_callback():
         # send user to home page if user is existing
         return redirect(url_for("home"))
 
-@app.route("/ESDproject/logout")
+@app.route("/logout")
 @login_required
 def logout():
     logout_user()
     return redirect(url_for("home"))
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    app.run(host="0.0.0.0", port=5300, debug=True)
 
