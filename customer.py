@@ -32,7 +32,10 @@ os.environ.get("GOOGLE_CLIENT_SECRET", None)
 GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
 )
+
 # using flask's login manager for user session mgmt setup
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 dbname = "customer"
 host = "localhost"
